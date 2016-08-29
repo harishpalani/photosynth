@@ -24,8 +24,14 @@ Bubble[] bubbles = new Bubble[0];
 int numDots;
 int currentDot= -1;
 
+long previousMillis = 0;
+int interval = 5000;
+
+int count = 1;
+int countdown = 30;
+
 void setup() {
-  size(840, 415); // size(1280, 720);
+  size(840, 415);
   smooth();
 
   rectColor = color(253, 181, 21);
@@ -52,7 +58,6 @@ void draw() {
 
   stroke(255);
   noFill();
-  // fill(255);
   rect(0, height-containerSize, containerSize, containerSize, 3, 6, 12, 18);
 
   lightSlider.update();
@@ -61,25 +66,34 @@ void draw() {
   co2Slider.display();
 
   if (isRunning) {
+    noStroke();
+    fill(255);
+    
     // for (int i = 0; i < currentDot; i++) {   }  
-    int n = int(random(-1, 4));    
-    if (bubbles.length < numDots) {
-      for (int a = 0; a < n; a++) {
-        new Bubble();
-      }
-    }    
+    // int n = int(random(-1, 4));    
+    //if (bubbles.length < numDots) {
+    //  for (int a = 0; a < n; a++) {
+    //    new Bubble();
+    //  }
+    //}
+    if(((millis() - previousMillis) > interval) && (count < numDots)) {
+      previousMillis = millis();
+      new Bubble();
+      
+      count++;
+    }
 
     for (int a = 0; a < bubbles.length; a++) {
       bubbles[a].drawBubbles();
     }
-     
+    
     String[] info = new String[] { str(runCount), str(co2), str(light), "white", str(numDots) }; 
-    list.add(info);    
+    list.add(info);
     yValues.add(yValue - yAdj);
     
     for(int i = 0; i < list.size(); i++) {
       String[] arr = list.get(i);
-      text((Integer.parseInt(arr[0]) - 1), 435,   yValues.get(i)); // enter 'Run #' data
+      text((Integer.parseInt(arr[0]) - 1), 435, yValues.get(i)); // enter 'Run #' data
       text(arr[1], 487, yValues.get(i)); // enter 'CO2' data
       text(arr[2], 572.75, yValues.get(i)); // enter 'light' data
       text(arr[3], 658.5, yValues.get(i)); // enter 'filter' data
@@ -98,7 +112,7 @@ void draw() {
     //text(co2, 487, (yValue - yAdj)); // enter 'CO2' data
     //text(light, 572.75, (yValue - yAdj)); // enter 'light' data
     //text("white", 658.5, (yValue - yAdj)); // enter 'filter' data
-    //text(numDots, 744.25, (yValue - yAdj)); // enter 'count' data     
+    //text(numDots, 744.25, (yValue - yAdj)); // enter 'count' data
   }
 
   stroke(255);
@@ -107,22 +121,33 @@ void draw() {
   
   textFont(f, 14);
   fill(255);
-  text("Run #", 435, 98);
-  line(482, 80, 482, 360);
-  text("CO2", 487, 98);
-  line(567.75, 80, 567.75, 360);
-  text("light", 572.75, 98);
-  line(653.5, 80, 653.5, 360);
-  text("filter", 658.5, 98);
-  line(739.25, 80, 739.25, 360);
-  text("count", 744.25, 98);
-  
   line(430, 102, 830, 102);
+  text("Run #", 435, 98);
+    line(482, 80, 482, 360);
+  text("CO2", 487, 98);
+    line(567.75, 80, 567.75, 360);
+  text("light", 572.75, 98);
+    line(653.5, 80, 653.5, 360);
+  text("filter", 658.5, 98);
+    line(739.25, 80, 739.25, 360);
+  text("count", 744.25, 98);
+    
+  int temp = int((interval - (millis() - previousMillis)) / 1000);
+  if(temp >= 0) {
+    countdown = temp;
+  }
+  textFont(f, 28);
+  text(countdown, 450, 400);
+  textFont(f, 18);
+  text("second(s)", 485, 395); // text("second(s)", 487.5, 395);
 }
 
 void mousePressed() {
   if (rectOver) {
-    isRunning = true;
+    new Bubble();
+    
+    isRunning = true;    
+    interval = (30000 / numDots);
     
     runCount++;
     yValue += yAdj;
@@ -138,11 +163,11 @@ class Bubble {
     y = floor(random(height - containerSize)) + containerSize; // y = floor(random(height));
     bubbles = (Bubble[]) append(bubbles, this);
   }
-
+  
   void drawBubbles() {
-    y += random(-1, 0.005);
+    y += random(-0.025, 0.005); // y += random(-1, 0.005);
     fill(255);
-    ellipse(x, y, 2, 2);
+    ellipse(x, y, 4, 4); // ellipse(x, y, 2, 2);
   }
 }
 
@@ -225,37 +250,32 @@ class Slider {
     //  fill(102, 102, 102);
     //}
     rect(spos, ypos, sheight, sheight);
-
+    
     if (between(light, 1, 3)) {
       if (between(co2, 1, 3)) {
-        numDots = 100;
+        numDots = 1;
       } else if (between(co2, 4, 7)) {
-        numDots = 300;
+        numDots = 3;
       } else {
-        numDots = 200;
+        numDots = 2;
       }
     } else if (between(light, 4, 7)) {
       if (between(co2, 1, 3)) {
-        numDots = 400;
+        numDots = 4;
       } else if (between(co2, 4, 7)) {
-        numDots = 600;
+        numDots = 6;
       } else {
-        numDots = 500;
+        numDots = 5;
       }
     } else {
       if (between(co2, 1, 3)) {
-        numDots = 700;
+        numDots = 7;
       } else if (between(co2, 4, 7)) {
-        numDots = 900;
+        numDots = 9;
       } else {
-        numDots = 800;
+        numDots = 8;
       }
     }
-    //System.out.println("numDots: " + numDots);
-    // bubbles = new Bubble[numDots];
-  }
-
-  void disable() {
   }
 
   int position1to10() {
@@ -279,12 +299,16 @@ void update() {
 }
 
 boolean overRect(int x, int y, int width, int height) {
-  if (mouseX >= x && mouseX <= x+width &&
-    mouseY >= y && mouseY <= y+height) {
-    return true;
-  } else {
-    return false;
-  }
+  //if(isEnabled) {
+    if (mouseX >= x && mouseX <= x+width &&
+      mouseY >= y && mouseY <= y+height) {
+      return true;
+    } else {
+      return false;
+    }
+  //} else {
+  //  return false; 
+  //}
 }
 
 boolean overCircle(int x, int y, int diameter) {
